@@ -5,26 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic Kanban</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="script.js" defer async>
+    </script>
 </head>
 <body>
     <header>
         <h1>Basic Kanban</h1>
     </header>
-    <form>
+    <div class="adicionar">
         <input type="text" placeholder="Digite a tarefa" required>
         <button type="button">Adicionar</button>
-    </form>
-    <div id="todo-column">
+    </div>
+    <div class="todo-column">
         <h2>A fazer</h2>
         <template>
             <div class="task-card">
                 <span>Exemplo de tarefa</span>
                 <button type="button">Mover para fazendo</button>
-                <button type="button">Excluir</button>
+                <button class="excluir" type="button">Excluir</button>
             </div>
         </template>
     </div>
-    <div id="doing-column">
+    <div class="doing-column">
         <h2>Fazendo</h2>
         <template>
             <div class="task-card">
@@ -34,7 +36,7 @@
             </div>
         </template>
     </div>
-    <div id="done-column">
+    <div class="done-column">
         <h2>Feito</h2>
         <template>
             <div class="task-card">
