@@ -12,6 +12,12 @@ function salvarTarefas() {
     localStorage.setItem('tarefas', JSON.stringify(arrayTarefas));
 }
 
+function carregarTarefas() {
+    const stringTarefas = localStorage.getItem('tarefas');
+    const arrayTarefas = JSON.parse(stringTarefas) || [];
+    arrayTarefas.forEach(elementText => criarTarefa(elementText));
+};
+
 function criarTarefa(texto) {
     if (texto.trim() === '') return;
     const tarefa = templateTarefa.content.cloneNode(true);
@@ -35,3 +41,5 @@ inputAdicionar.addEventListener('keypress', (event) => {
     if (event.key !== 'Enter') return;
     buttonAdicionar.click();
 });
+
+carregarTarefas();
