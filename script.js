@@ -17,14 +17,18 @@ function salvarTarefas() {
         doing: extrairTextos(containerDoing),
         done: extrairTextos(containerDone)
     };
-    
+
     localStorage.setItem('tarefas', JSON.stringify(dados));
 };
 
 function carregarTarefas() {
-    const stringTarefas = localStorage.getItem('tarefas');
-    const arrayTarefas = stringTarefas ? JSON.parse(stringTarefas) : [];
-    arrayTarefas.forEach(elementText => criarTarefa(elementText));
+   const dadosString = localStorage.getItem('tarefas');
+   if (!dadosString) return;
+
+   const dados = JSON.parse(dadosString);
+   dados.todo.forEach(texto => criarTarefa(texto, containerTodo));
+   dados.doing.forEach(texto => criarTarefa(texto, containerDoing));
+   dados.done.forEach(texto => criarTarefa(texto, containerDone));
 };
 
 function criarTarefa(texto) {
