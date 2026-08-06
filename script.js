@@ -3,7 +3,7 @@ const buttonAdicionar = document.querySelector('#adicionar');
 const containerTodo = document.querySelector('.todo-column');
 const containerDoing = document.querySelector('.doing-column');
 const containerDone = document.querySelector('.done-column');
-const templateTarefa = document.querySelector('template');
+const templateTarefa = document.querySelector('#templateTarefa');
 
 function salvarTarefas() {
 
@@ -31,14 +31,14 @@ function carregarTarefas() {
    dados.done.forEach(texto => criarTarefa(texto, containerDone));
 };
 
-function moverTarefa(tarefa, direcao) {
+function moverTarefa(card, direcao) {
     const colunas = [containerTodo, containerDoing, containerDone];
     const colunaAtual = card.parentElement;
 
     const indexAtual = colunas.indexOf(colunaAtual);
     const indexNovo = indexAtual + direcao;
 
-    if (indexNovo < 0 || indexNovo >= colunas.lenght) return;
+    if (indexNovo < 0 || indexNovo >= colunas.length) return;
     card.remove();
     colunas[indexNovo].appendChild(card);
 
@@ -48,7 +48,7 @@ function moverTarefa(tarefa, direcao) {
 };
 
 function criarTarefa(texto, containerDestino) {
-    if (texto.trim() === '') return;
+    if (!texto || texto.trim() === '') return;
     const tarefa = templateTarefa.content.cloneNode(true);
     const card = tarefa.querySelector('.task-card');
     const spanTitle = tarefa.querySelector('span');
