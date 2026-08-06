@@ -14,10 +14,15 @@ function criarTarefa(texto) {
     spanTitle.textContent = texto;
     buttonExcluir.onclick = () => {buttonExcluir.closest('.task-card').remove()};
     containerTodo.appendChild(tarefa);
-}
+};
 
 buttonAdicionar.addEventListener('click', () => {
     const texto = inputAdicionar.value.trim();
     criarTarefa(texto);
     inputAdicionar.value = '';
+});
+
+inputAdicionar.addEventListener('keypress', (event) => {
+    if (event.key !== 'Enter') return;
+    buttonAdicionar.click();
 });
