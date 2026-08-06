@@ -31,22 +31,46 @@ function carregarTarefas() {
    dados.done.forEach(texto => criarTarefa(texto, containerDone));
 };
 
-function criarTarefa(texto) {
+function moverTarefa(tarefa, direcao) {
+    const colunas = [containerTodo, containerDoing, containerDone];
+    const colunaAtual = card.parentElement;
+
+    const indexAtual = colunas.indexOf(colunaAtual);
+    const indexNovo = indexAtual + direcao;
+
+    if (indexNovo < 0 || indexNovo >= colunas.lenght) return;
+    card.remove();
+    colunas[indexNovo].appendChild(card);
+
+    salvarTarefas();
+
+
+};
+
+function criarTarefa(texto, containerDestino) {
     if (texto.trim() === '') return;
     const tarefa = templateTarefa.content.cloneNode(true);
+    const card = tarefa.querySelector('.task-card');
     const spanTitle = tarefa.querySelector('span');
     const buttonExcluir = tarefa.querySelector('.excluir');
+    const buttonEsquerda = tarefa.querySelector('.move-left');
+    const buttonDireita = tarefa.querySelector('.move-right');
+
     spanTitle.textContent = texto;
-    buttonExcluir.onclick = () => {buttonExcluir.closest('.task-card').remove()
+    buttonExcluir.onclick = () => {
+        card.remove();
         salvarTarefas();
     };
-    containerTodo.appendChild(tarefa);
+
+    buttonEsquerda.onclick = () => moverTarefa(card, -1);
+    buttonDireita.onclick = () => moverTarefa(card, 1);
+    containerDestino.appendChild(card);
     salvarTarefas();
 };
 
 buttonAdicionar.addEventListener('click', () => {
     const texto = inputAdicionar.value.trim();
-    criarTarefa(texto);
+    criarTarefa(texto, containerTodo);
     inputAdicionar.value = '';
 });
 
