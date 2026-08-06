@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Kanban</title>
+    <title>Kanban</title>
     <link rel="stylesheet" href="style.css">
     <script type="module" src="script.js" defer async>
     </script>
 </head>
 <body>
     <header>
-        <h1>Basic Kanban</h1>
+        <h1>Kanban</h1>
     </header>
     <div class="adicionar">
-        <input type="text" placeholder="Digite a tarefa" required>
-        <button type="button">Adicionar</button>
+        <input type="text" id="input-tarefa" placeholder="Digite a tarefa" required>
+        <button type="button" id="adicionar">Adicionar</button>
     </div>
     <div class="todo-column">
         <h2>A fazer</h2>
         <template>
             <div class="task-card">
                 <span class="task-title">Exemplo de tarefa</span>
-                <button type="button">Mover para fazendo</button>
-                <button class="excluir" type="button">Excluir</button>
+                <button type="button" class="move-right">→</button>
+                <button class="excluir" type="button">                <button type="button">←</button>
+</button>
             </div>
         </template>
     </div>
@@ -30,9 +31,10 @@
         <h2>Fazendo</h2>
         <template>
             <div class="task-card">
-                <span>Exemplo de tarefa</span>
-                <button type="button">Mover para feito</button>
-                <button type="button">Excluir</button>
+                <span class="task-title">Exemplo de tarefa</span>
+                <button type="button" class="move-left">←</button>
+                <button type="button" class="move-right">→</button>
+                <button type="button" class="excluir">x</button>
             </div>
         </template>
     </div>
@@ -40,8 +42,9 @@
         <h2>Feito</h2>
         <template>
             <div class="task-card">
-                <span>Exemplo de tarefa</span>
-                <button type="button">Excluir</button>
+                <span class="task-title">Exemplo de tarefa</span>
+                <button type="button" class="move-left">←</button>
+                <button type="button" class="excluir">x</button>
             </div>
         </template>
     </div>

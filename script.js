@@ -1,16 +1,25 @@
-const containerAdicionar = document.querySelector('.adicionar');
-const inputAdicionar = document.querySelector('input');
-const buttonAdicionar = document.querySelector('button');
+const inputAdicionar = document.querySelector('#input-tarefa');
+const buttonAdicionar = document.querySelector('#adicionar');
 const containerTodo = document.querySelector('.todo-column');
 const containerDoing = document.querySelector('.doing-column');
 const containerDone = document.querySelector('.done-column');
 const templateTarefa = document.querySelector('template');
 
 function salvarTarefas() {
-    const nodeListTarefas = containerTodo.querySelectorAll('.task-card');
-    const arrayTarefas = Array.from(nodeListTarefas).map((tarefa) => tarefa.querySelector('.task-title').textContent);
-    localStorage.setItem('tarefas', JSON.stringify(arrayTarefas));
-}
+
+    function extrairTextos(container) {
+        const titulos = container.querySelectorAll('.task-card span');
+        return Array.from(titulos).map(elemento => elemento.textContent);
+    }
+
+    const dados = {
+        todo: extrairTextos(containerTodo),
+        doing: extrairTextos(containerDoing),
+        done: extrairTextos(containerDone)
+    };
+    
+    localStorage.setItem('tarefas', JSON.stringify(dados));
+};
 
 function carregarTarefas() {
     const stringTarefas = localStorage.getItem('tarefas');
