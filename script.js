@@ -1,15 +1,14 @@
 const inputAdicionar = document.querySelector('#input-tarefa');
 const buttonAdicionar = document.querySelector('#adicionar');
-const containerTodo = document.querySelector('.todo-column');
-const containerDoing = document.querySelector('.doing-column');
-const containerDone = document.querySelector('.done-column');
+const containerTodo = document.querySelector('.todo-column .cards-container');
+const containerDoing = document.querySelector('.doing-column .cards-container');
+const containerDone = document.querySelector('.done-column .cards-container');
 const templateTarefa = document.querySelector('#templateTarefa');
 
 function salvarTarefas() {
-
     function extrairTextos(container) {
-        const titulos = container.querySelectorAll('.task-card span');
-        return Array.from(titulos).map(elemento => elemento.textContent);
+        const titulos = container.querySelectorAll('.task-card .task-title');
+        return Array.from(titulos).map(el => el.textContent);
     }
 
     const dados = {
@@ -17,46 +16,48 @@ function salvarTarefas() {
         doing: extrairTextos(containerDoing),
         done: extrairTextos(containerDone)
     };
-
     localStorage.setItem('tarefas', JSON.stringify(dados));
-};
+}
 
 function carregarTarefas() {
-   const dadosString = localStorage.getItem('tarefas');
-   if (!dadosString) return;
+    const dadosString = localStorage.getItem('tarefas');
+    if (!dadosString) return;
 
-   const dados = JSON.parse(dadosString);
-   dados.todo.forEach(texto => criarTarefa(texto, containerTodo));
-   dados.doing.forEach(texto => criarTarefa(texto, containerDoing));
-   dados.done.forEach(texto => criarTarefa(texto, containerDone));
-};
+    try {
+        const dados = JSON.parse(dadosString);
+        dados.todo.forEach(texto => criarTarefa(texto, containerTodo, false));
+        dados.doing.forEach(texto => criarTarefa(texto, containerDoing, false));
+        dados.done.forEach(texto => criarTarefa(texto, containerDone, false));
+        salvarTarefas();
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+    }
+}
 
 function moverTarefa(card, direcao) {
     const colunas = [containerTodo, containerDoing, containerDone];
     const colunaAtual = card.parentElement;
-
     const indexAtual = colunas.indexOf(colunaAtual);
     const indexNovo = indexAtual + direcao;
 
     if (indexNovo < 0 || indexNovo >= colunas.length) return;
     card.remove();
     colunas[indexNovo].appendChild(card);
-
     salvarTarefas();
+}
 
-
-};
-
-function criarTarefa(texto, containerDestino) {
+function criarTarefa(texto, containerDestino, salvar = true) {
     if (!texto || texto.trim() === '') return;
+
     const tarefa = templateTarefa.content.cloneNode(true);
     const card = tarefa.querySelector('.task-card');
-    const spanTitle = tarefa.querySelector('span');
+    const spanTitle = tarefa.querySelector('.task-title');
     const buttonExcluir = tarefa.querySelector('.excluir');
     const buttonEsquerda = tarefa.querySelector('.move-left');
     const buttonDireita = tarefa.querySelector('.move-right');
 
-    spanTitle.textContent = texto;
+    spanTitle.textContent = texto.trim();
+
     buttonExcluir.onclick = () => {
         card.remove();
         salvarTarefas();
@@ -64,9 +65,10 @@ function criarTarefa(texto, containerDestino) {
 
     buttonEsquerda.onclick = () => moverTarefa(card, -1);
     buttonDireita.onclick = () => moverTarefa(card, 1);
+
     containerDestino.appendChild(card);
-    salvarTarefas();
-};
+    if (salvar) salvarTarefas();
+}
 
 buttonAdicionar.addEventListener('click', () => {
     const texto = inputAdicionar.value.trim();
@@ -75,8 +77,7 @@ buttonAdicionar.addEventListener('click', () => {
 });
 
 inputAdicionar.addEventListener('keypress', (event) => {
-    if (event.key !== 'Enter') return;
-    buttonAdicionar.click();
+    if (event.key === 'Enter') buttonAdicionar.click();
 });
 
 carregarTarefas();

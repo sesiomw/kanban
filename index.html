@@ -9,44 +9,38 @@
     </script>
 </head>
 <body>
-    <header>
-        <h1>Kanban</h1>
-    </header>
-    <div class="adicionar">
-        <input type="text" id="input-tarefa" placeholder="Digite a tarefa" required>
-        <button type="button" id="adicionar">Adicionar</button>
+  <header>
+    <h1>Kanban</h1>
+  </header>
+
+  <div class="adicionar">
+    <input type="text" id="input-tarefa" placeholder="Digite a tarefa" required>
+    <button type="button" id="adicionar">Adicionar</button>
+  </div>
+
+  <div class="kanban-board">
+    <div class="coluna todo-column">
+      <h2>A fazer</h2>
+      <div class="cards-container"></div>
     </div>
-    <div class="todo-column">
-        <h2>A fazer</h2>
-        <template id="templateTarefa">
-            <div class="task-card">
-                <span class="task-title">Exemplo de tarefa</span>
-                <button type="button" class="move-right">→</button>
-                <button class="excluir" type="button">                <button type="button">←</button>
-</button>
-            </div>
-        </template>
+    <div class="coluna doing-column">
+      <h2>Fazendo</h2>
+      <div class="cards-container"></div>
     </div>
-    <div class="doing-column">
-        <h2>Fazendo</h2>
-        <template>
-            <div class="task-card">
-                <span class="task-title">Exemplo de tarefa</span>
-                <button type="button" class="move-left">←</button>
-                <button type="button" class="move-right">→</button>
-                <button type="button" class="excluir">x</button>
-            </div>
-        </template>
+    <div class="coluna done-column">
+      <h2>Feito</h2>
+      <div class="cards-container"></div>
     </div>
-    <div class="done-column">
-        <h2>Feito</h2>
-        <template>
-            <div class="task-card">
-                <span class="task-title">Exemplo de tarefa</span>
-                <button type="button" class="move-left">←</button>
-                <button type="button" class="excluir">x</button>
-            </div>
-        </template>
+  </div>
+
+  <template id="templateTarefa">
+    <div class="task-card">
+      <span class="task-title"></span>
+      <div class="card-actions">
+        <button type="button" class="move-left">←</button>
+        <button type="button" class="move-right">→</button>
+        <button type="button" class="excluir">✕</button>
+      </div>
     </div>
+  </template>
 </body>
-</html>
