@@ -4,6 +4,18 @@ const server = Bun.serve({
     async fetch(request) {
         const url = new URL(request.url);
 
+        if (request.method === 'GET' && url.pathname === '/') {
+            return new Response(Bun.file('index.html'));
+        }
+
+        if (request.method === 'GET' && url.pathname === '/style.css') {
+            return new Response(Bun.file('style.css'));
+        }
+
+        if (request.method === 'GET' && url.pathname === '/script.js') {
+            return new Response(Bun.file('script.js'));
+        }
+
         if (request.method === 'GET' && url.pathname === '/api/tarefas') {
             const arquivo = Bun.file('data/tarefas.json');
             const conteudo = await arquivo.text();

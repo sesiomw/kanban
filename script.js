@@ -5,7 +5,7 @@ const containerDoing = document.querySelector('.doing-column .cards-container');
 const containerDone = document.querySelector('.done-column .cards-container');
 const templateTarefa = document.querySelector('#templateTarefa');
 
-function salvarTarefas() {
+async function salvarTarefas() {
     function extrairTextos(container) {
         const titulos = container.querySelectorAll('.task-card .task-title');
         return Array.from(titulos).map(el => el.textContent);
@@ -16,19 +16,23 @@ function salvarTarefas() {
         doing: extrairTextos(containerDoing),
         done: extrairTextos(containerDone)
     };
-    localStorage.setItem('tarefas', JSON.stringify(dados));
+    await fetch('/api/tarefas', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dados)
+    });
 }
 
-function carregarTarefas() {
-    const dadosString = localStorage.getItem('tarefas');
-    if (!dadosString) return;
-
+async function carregarTarefas() {
     try {
-        const dados = JSON.parse(dadosString);
-        dados.todo.forEach(texto => criarTarefa(texto, containerTodo, false));
-        dados.doing.forEach(texto => criarTarefa(texto, containerDoing, false));
-        dados.done.forEach(texto => criarTarefa(texto, containerDone, false));
-        salvarTarefas();
+        const resposta = await fetch('/api/tarefas');
+        const tarefas = await resposta.json();
+
+        tarefas.todo.forEach(texto => criarTarefa(texto, containerTodo, false));
+        tarefas.doing.forEach(texto => criarTarefa(texto, containerDoing, false));
+        tarefas.done.forEach(texto => criarTarefa(texto, containerDone, false));
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
     }
