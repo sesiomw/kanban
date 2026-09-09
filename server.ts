@@ -40,14 +40,19 @@ const server = Bun.serve({
         }
 
         if (request.method === 'GET' && url.pathname === '/api/tarefas') {
-            const arquivo = Bun.file('data/tarefas.json');
-            const conteudo = await arquivo.text();
-
-            return new Response(conteudo, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            try {
+                const arquivo = Bun.file('data/tarefas.json');
+                const conteudo = await arquivo.text();
+                return new Response(conteudo, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch {
+                return new Response('Erro ao carregar tarefas', {
+                    status: 500
+                });
+            }
         }
 
         if (request.method === 'PUT' && url.pathname === '/api/tarefas') {
@@ -56,20 +61,29 @@ const server = Bun.serve({
                 const dados = JSON.parse(conteudo);
 
                 if (!validarTarefas(dados)) {
-                    return new Response('Formato de tarefas inválido', {
+                    return new Response('Estrutura inválida', {
+                        status: 400
                     });
                 }
 
-                await Bun.write('data/tarefas.json', conteudo);
-            
+                try {
+                    await Bun.write(
+                        'data/tarefas.json',
+                        JSON.stringify(dados, null, 2)
+                    );
+                } catch {
+                    return new Response('Erro ao salvar tarefas', {
+                        status: 500
+                    });
+                }
+
                 return new Response('Tarefas salvas!');
             } catch {
                 return new Response('JSON inválido', {
                     status: 400
-            });
+                });
+            }
         }
-    }
-
 
         return new Response('Rota não encontrada', {
             status: 404

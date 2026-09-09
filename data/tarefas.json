@@ -1,5 +1,12 @@
 {
-    "todo": ["DSDADSDAD"],
-    "doing": [],
-    "done": []
+  "todo": [
+    "Estudar Postgres"
+  ],
+  "doing": [
+    "Desenvolver meu projeto",
+    "Estudar TypeScript"
+  ],
+  "done": [
+    "Comprar maconha"
+  ]
 }
