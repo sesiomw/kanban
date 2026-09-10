@@ -396,3 +396,37 @@ input:focus-visible {
     transition: none;
   }
 }
+
+.identificacao {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 300px;
+    padding: 30px;
+
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+
+    text-align: center;
+
+    z-index: 1000;
+}
+
+.identificacao h2 {
+    margin-bottom: 20px;
+}
+
+.identificacao input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.identificacao button {
+    padding: 10px 25px;
+    cursor: pointer;
+}

@@ -1,12 +1,20 @@
 {
   "todo": [
-    "Estudar Postgres"
+    {
+      "titulo": "Testar",
+      "autor": "Moisés"
+    }
   ],
   "doing": [
-    "Desenvolver meu projeto",
-    "Estudar TypeScript"
+    {
+      "titulo": "Testar 2",
+      "autor": "Arthur"
+    }
   ],
   "done": [
-    "Comprar maconha"
+    {
+      "titulo": "Jogar bola",
+      "autor": "Neymar Jr"
+    }
   ]
 }

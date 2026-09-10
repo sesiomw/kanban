@@ -9,6 +9,13 @@
     </script>
 </head>
 <body>
+  
+  <div class="identificacao">
+    <h2>Qual é o seu nome?</h2>
+    <input type="text" id="nome-usuario" placeholder="Digite seu nome">
+    <button type="button" id="entrar">Entrar</button>
+  </div>
+
   <header>
     <h1>Kanban</h1>
   </header>
@@ -36,6 +43,7 @@
   <template id="templateTarefa">
     <div class="task-card">
       <span class="task-title"></span>
+      <span class="task-author"></span>
       <div class="card-actions">
         <button type="button" class="move-left">←</button>
         <button type="button" class="move-right">→</button>

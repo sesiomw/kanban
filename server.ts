@@ -1,8 +1,25 @@
+type Tarefa = {
+    autor: string;
+    titulo: string;
+}
+
 type Tarefas = {
-    todo: string[];
-    doing: string[];
-    done: string[];
+    todo: Tarefa[];
+    doing: Tarefa[];
+    done: Tarefa[];
 };
+
+function validarTarefa(item: unknown): item is Tarefa {
+    if (typeof item !== 'object' || item === null) {
+        return false;
+    }
+    const tarefa = item as Record<string, unknown>;
+
+    return (
+        typeof tarefa.titulo === 'string' &&
+        typeof tarefa.autor === 'string'
+    );
+}
 
 function validarTarefas(dados: unknown): dados is Tarefas {
     if (typeof dados !== 'object' || dados === null) {
@@ -15,9 +32,9 @@ function validarTarefas(dados: unknown): dados is Tarefas {
         Array.isArray(tarefas.todo) &&
         Array.isArray(tarefas.doing) &&
         Array.isArray(tarefas.done) &&
-        tarefas.todo.every(item => typeof item === 'string') &&
-        tarefas.doing.every(item => typeof item === 'string') &&
-        tarefas.done.every(item => typeof item === 'string')
+        tarefas.todo.every(validarTarefa) &&
+        tarefas.doing.every(validarTarefa) &&
+        tarefas.done.every(validarTarefa)
     );
 }
 
