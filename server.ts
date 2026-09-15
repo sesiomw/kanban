@@ -42,6 +42,7 @@ function validarTarefas(dados: unknown): dados is Tarefas {
 
 const server = Bun.serve({
     port: 3000,
+    hostname: '0.0.0.0',
 
     async fetch(request) {
         const url = new URL(request.url);
