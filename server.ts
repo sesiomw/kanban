@@ -1,6 +1,7 @@
 type Tarefa = {
     autor: string;
     titulo: string;
+    prazo: string;
 }
 
 type Tarefas = {
@@ -17,7 +18,8 @@ function validarTarefa(item: unknown): item is Tarefa {
 
     return (
         typeof tarefa.titulo === 'string' &&
-        typeof tarefa.autor === 'string'
+        typeof tarefa.autor === 'string' &&
+        typeof tarefa.prazo === 'string'
     );
 }
 

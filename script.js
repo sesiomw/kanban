@@ -2,6 +2,7 @@ const inputNome = document.querySelector('#nome-usuario');
 const buttonEntrar = document.querySelector('#entrar');
 const telaIdentificacao = document.querySelector('.identificacao')
 const inputAdicionar = document.querySelector('#input-tarefa');
+const inputPrazo = document.querySelector('#input-prazo');
 const buttonAdicionar = document.querySelector('#adicionar');
 const containerTodo = document.querySelector('.todo-column .cards-container');
 const containerDoing = document.querySelector('.doing-column .cards-container');
@@ -17,10 +18,12 @@ async function salvarTarefas() {
         return Array.from(cards).map(card => {
             const titulo = card.querySelector('.task-title');
             const autor = card.querySelector('.task-author');
+            const prazo = card.querySelector('.task-deadline');
 
             return {
                 titulo: titulo.textContent,
-                autor: autor.textContent
+                autor: autor.textContent,
+                prazo: card.dataset.prazo || ''
             };
         });
     }
@@ -47,9 +50,9 @@ async function carregarTarefas() {
         const resposta = await fetch('/api/tarefas');
         const tarefas = await resposta.json();
 
-        tarefas.todo.forEach(tarefa => criarTarefa(tarefa.titulo, containerTodo, false, tarefa.autor));
-        tarefas.doing.forEach(tarefa => criarTarefa(tarefa.titulo, containerDoing, false, tarefa.autor));
-        tarefas.done.forEach(tarefa => criarTarefa(tarefa.titulo, containerDone, false, tarefa.autor));
+        tarefas.todo.forEach(tarefa => criarTarefa(tarefa.titulo, containerTodo, false, tarefa.autor, tarefa.prazo));
+        tarefas.doing.forEach(tarefa => criarTarefa(tarefa.titulo, containerDoing, false, tarefa.autor, tarefa.prazo));
+        tarefas.done.forEach(tarefa => criarTarefa(tarefa.titulo, containerDone, false, tarefa.autor, tarefa.prazo));
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
     }
@@ -67,19 +70,22 @@ function moverTarefa(card, direcao) {
     salvarTarefas();
 }
 
-function criarTarefa(texto, containerDestino, salvar = true, autor = nomeUsuario) {
+function criarTarefa(texto, containerDestino, salvar = true, autor = nomeUsuario, prazo = '') {
     if (!texto || texto.trim() === '') return;
 
     const tarefa = templateTarefa.content.cloneNode(true);
     const card = tarefa.querySelector('.task-card');
     const spanTitle = tarefa.querySelector('.task-title');
     const spanAutor = tarefa.querySelector('.task-author');
+    const spanPrazo = tarefa.querySelector('.task-deadline');
+    card.dataset.prazo = prazo;
     const buttonExcluir = tarefa.querySelector('.excluir');
     const buttonEsquerda = tarefa.querySelector('.move-left');
     const buttonDireita = tarefa.querySelector('.move-right');
 
     spanTitle.textContent = texto.trim();
     spanAutor.textContent = autor;
+    spanPrazo.textContent = formatarData(prazo);
 
     buttonExcluir.onclick = () => {
         card.remove();
@@ -102,6 +108,12 @@ function verificarNomeUsuario() {
     nomeUsuario = nomeSalvo;
 }
 
+function formatarData(data) {
+    if (!data) return '';
+    const [ano, mes, dia] = data.split('-');
+    return `${dia}/${mes}/${ano}`;
+}
+
 buttonEntrar.addEventListener('click', () => {
     const nome = inputNome.value.trim();
     if (nome === '') {
@@ -114,8 +126,10 @@ buttonEntrar.addEventListener('click', () => {
 
 buttonAdicionar.addEventListener('click', () => {
     const texto = inputAdicionar.value.trim();
-    criarTarefa(texto, containerTodo);
+    const prazo = inputPrazo.value;
+    criarTarefa(texto, containerTodo, true, nomeUsuario, prazo);
     inputAdicionar.value = '';
+    inputPrazo.value = '';
 });
 
 inputAdicionar.addEventListener('keypress', (event) => {

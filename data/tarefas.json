@@ -1,20 +1,5 @@
 {
-  "todo": [
-    {
-      "titulo": "Testar",
-      "autor": "Moisés"
-    }
-  ],
-  "doing": [
-    {
-      "titulo": "Testar 2",
-      "autor": "Arthur"
-    }
-  ],
-  "done": [
-    {
-      "titulo": "Jogar bola",
-      "autor": "Neymar Jr"
-    }
-  ]
+  "todo": [],
+  "doing": [],
+  "done": []
 }
