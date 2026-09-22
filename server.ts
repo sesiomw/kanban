@@ -1,3 +1,5 @@
+import { db } from "./db";
+
 type Tarefa = {
     autor: string;
     titulo: string;
@@ -8,6 +10,14 @@ type Tarefas = {
     todo: Tarefa[];
     doing: Tarefa[];
     done: Tarefa[];
+};
+
+type TarefaBanco = {
+    id: number;
+    titulo: string;
+    autor: string;
+    prazo: string;
+    coluna: string;
 };
 
 function validarTarefa(item: unknown): item is Tarefa {
@@ -61,13 +71,18 @@ const server = Bun.serve({
 
         if (request.method === 'GET' && url.pathname === '/api/tarefas') {
             try {
-                const arquivo = Bun.file('data/tarefas.json');
-                const conteudo = await arquivo.text();
-                return new Response(conteudo, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+                const tarefas = db.query(`
+            SELECT id, titulo, autor, prazo, coluna
+            FROM tarefas
+        `).all() as TarefaBanco[];
+
+                const dados = {
+                    todo: tarefas.filter(tarefa => tarefa.coluna === 'todo'),
+                    doing: tarefas.filter(tarefa => tarefa.coluna === 'doing'),
+                    done: tarefas.filter(tarefa => tarefa.coluna === 'done')
+                };
+
+                return Response.json(dados);
             } catch {
                 return new Response('Erro ao carregar tarefas', {
                     status: 500
@@ -75,35 +90,64 @@ const server = Bun.serve({
             }
         }
 
-        if (request.method === 'PUT' && url.pathname === '/api/tarefas') {
-            try {
-                const conteudo = await request.text();
-                const dados = JSON.parse(conteudo);
+if (request.method === 'PUT' && url.pathname === '/api/tarefas') {
+    try {
+        const conteudo = await request.text();
+        const dados = JSON.parse(conteudo);
 
-                if (!validarTarefas(dados)) {
-                    return new Response('Estrutura inválida', {
-                        status: 400
-                    });
-                }
+        console.log('Dados recebidos:', dados);
 
-                try {
-                    await Bun.write(
-                        'data/tarefas.json',
-                        JSON.stringify(dados, null, 2)
-                    );
-                } catch {
-                    return new Response('Erro ao salvar tarefas', {
-                        status: 500
-                    });
-                }
-
-                return new Response('Tarefas salvas!');
-            } catch {
-                return new Response('JSON inválido', {
-                    status: 400
-                });
-            }
+        if (!validarTarefas(dados)) {
+            return new Response('Estrutura inválida', {
+                status: 400
+            });
         }
+
+        db.query('DELETE FROM tarefas').run();
+
+        const inserir = db.query(`
+            INSERT INTO tarefas (titulo, autor, prazo, coluna)
+            VALUES (?, ?, ?, ?)
+        `);
+
+        for (const tarefa of dados.todo) {
+            inserir.run(
+                tarefa.titulo,
+                tarefa.autor,
+                tarefa.prazo,
+                'todo'
+            );
+        }
+
+        for (const tarefa of dados.doing) {
+            inserir.run(
+                tarefa.titulo,
+                tarefa.autor,
+                tarefa.prazo,
+                'doing'
+            );
+        }
+
+        for (const tarefa of dados.done) {
+            inserir.run(
+                tarefa.titulo,
+                tarefa.autor,
+                tarefa.prazo,
+                'done'
+            );
+        }
+
+        console.log(
+            db.query('SELECT * FROM tarefas').all()
+        );
+
+        return new Response('Tarefas salvas!');
+    } catch {
+        return new Response('JSON inválido', {
+            status: 400
+        });
+    }
+}
 
         return new Response('Rota não encontrada', {
             status: 404
