@@ -49,13 +49,19 @@ async function carregarTarefas() {
     try {
         const resposta = await fetch('/api/tarefas');
         const tarefas = await resposta.json();
-
+        limparTarefas();
         tarefas.todo.forEach(tarefa => criarTarefa(tarefa.titulo, containerTodo, false, tarefa.autor, tarefa.prazo));
         tarefas.doing.forEach(tarefa => criarTarefa(tarefa.titulo, containerDoing, false, tarefa.autor, tarefa.prazo));
         tarefas.done.forEach(tarefa => criarTarefa(tarefa.titulo, containerDone, false, tarefa.autor, tarefa.prazo));
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
     }
+}
+
+function limparTarefas() {
+    containerTodo.innerHTML = '';
+    containerDoing.innerHTML = '';
+    containerDone.innerHTML = '';
 }
 
 function moverTarefa(card, direcao) {
@@ -69,6 +75,8 @@ function moverTarefa(card, direcao) {
     colunas[indexNovo].appendChild(card);
     salvarTarefas();
 }
+
+setInterval(carregarTarefas, 2000);
 
 function criarTarefa(texto, containerDestino, salvar = true, autor = nomeUsuario, prazo = '') {
     if (!texto || texto.trim() === '') return;
