@@ -11,48 +11,14 @@ const templateTarefa = document.querySelector('#templateTarefa');
 
 let nomeUsuario = '';
 
-async function salvarTarefas() {
-    function extrairTextos(container) {
-        const cards = container.querySelectorAll('.task-card');
-
-        return Array.from(cards).map(card => {
-            const titulo = card.querySelector('.task-title');
-            const autor = card.querySelector('.task-author');
-            const prazo = card.querySelector('.task-deadline');
-
-            return {
-                titulo: titulo.textContent,
-                autor: autor.textContent,
-                prazo: card.dataset.prazo || ''
-            };
-        });
-    }
-
-    const dados = {
-        todo: extrairTextos(containerTodo),
-        doing: extrairTextos(containerDoing),
-        done: extrairTextos(containerDone)
-    };
-
-console.log(dados);
-
-    await fetch('/api/tarefas', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dados)
-    });
-}
-
 async function carregarTarefas() {
     try {
         const resposta = await fetch('/api/tarefas');
         const tarefas = await resposta.json();
         limparTarefas();
-        tarefas.todo.forEach(tarefa => criarTarefa(tarefa.titulo, containerTodo, false, tarefa.autor, tarefa.prazo));
-        tarefas.doing.forEach(tarefa => criarTarefa(tarefa.titulo, containerDoing, false, tarefa.autor, tarefa.prazo));
-        tarefas.done.forEach(tarefa => criarTarefa(tarefa.titulo, containerDone, false, tarefa.autor, tarefa.prazo));
+        tarefas.todo.forEach(tarefa => criarTarefa(tarefa.titulo, containerTodo, false, tarefa.autor, tarefa.prazo, tarefa.id));
+        tarefas.doing.forEach(tarefa => criarTarefa(tarefa.titulo, containerDoing, false, tarefa.autor, tarefa.prazo, tarefa.id));
+        tarefas.done.forEach(tarefa => criarTarefa(tarefa.titulo, containerDone, false, tarefa.autor, tarefa.prazo, tarefa.id));
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
     }
@@ -64,47 +30,107 @@ function limparTarefas() {
     containerDone.innerHTML = '';
 }
 
-function moverTarefa(card, direcao) {
+async function moverTarefa(card, direcao) {
     const colunas = [containerTodo, containerDoing, containerDone];
     const colunaAtual = card.parentElement;
     const indexAtual = colunas.indexOf(colunaAtual);
     const indexNovo = indexAtual + direcao;
 
     if (indexNovo < 0 || indexNovo >= colunas.length) return;
+
+    const id = card.dataset.id;
+    const novaColuna = ['todo', 'doing', 'done'][indexNovo];
+
+    const resposta = await fetch(`/api/tarefas/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ coluna: novaColuna })
+    });
+
+    if (!resposta.ok) {
+        console.error('Erro ao mover tarefa')
+        return;
+    }
+
     card.remove();
     colunas[indexNovo].appendChild(card);
-    salvarTarefas();
 }
 
 setInterval(carregarTarefas, 2000);
 
-function criarTarefa(texto, containerDestino, salvar = true, autor = nomeUsuario, prazo = '') {
+async function criarTarefa(
+    texto,
+    containerDestino,
+    salvar = true,
+    autor = nomeUsuario,
+    prazo = '',
+    id = null
+) {
     if (!texto || texto.trim() === '') return;
+
+    if (salvar) {
+        const resposta = await fetch('/api/tarefas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                titulo: texto.trim(),
+                autor: autor,
+                prazo: prazo
+            })
+        });
+
+        if (!resposta.ok) {
+            console.error('Erro ao criar tarefa');
+            return;
+        }
+
+        const dados = await resposta.json();
+        id = dados.id;
+    }
 
     const tarefa = templateTarefa.content.cloneNode(true);
     const card = tarefa.querySelector('.task-card');
+
+    if (id !== null) {
+        card.dataset.id = id;
+    }
+
     const spanTitle = tarefa.querySelector('.task-title');
     const spanAutor = tarefa.querySelector('.task-author');
     const spanPrazo = tarefa.querySelector('.task-deadline');
-    card.dataset.prazo = prazo;
     const buttonExcluir = tarefa.querySelector('.excluir');
     const buttonEsquerda = tarefa.querySelector('.move-left');
     const buttonDireita = tarefa.querySelector('.move-right');
+
+    card.dataset.prazo = prazo;
 
     spanTitle.textContent = texto.trim();
     spanAutor.textContent = autor;
     spanPrazo.textContent = formatarData(prazo);
 
-    buttonExcluir.onclick = () => {
-        card.remove();
-        salvarTarefas();
-    };
+buttonExcluir.onclick = async () => {
+    const id = card.dataset.id;
+
+    const resposta = await fetch(`/api/tarefas/${id}`, {
+        method: 'DELETE'
+    });
+
+    if (!resposta.ok) {
+        console.error('Erro ao excluir tarefa');
+        return;
+    }
+
+    card.remove();
+};
 
     buttonEsquerda.onclick = () => moverTarefa(card, -1);
     buttonDireita.onclick = () => moverTarefa(card, 1);
 
     containerDestino.appendChild(card);
-    if (salvar) salvarTarefas();
 }
 
 function verificarNomeUsuario() {

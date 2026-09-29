@@ -1,17 +1,5 @@
 import { db } from "./db";
 
-type Tarefa = {
-    autor: string;
-    titulo: string;
-    prazo: string;
-}
-
-type Tarefas = {
-    todo: Tarefa[];
-    doing: Tarefa[];
-    done: Tarefa[];
-};
-
 type TarefaBanco = {
     id: number;
     titulo: string;
@@ -19,36 +7,6 @@ type TarefaBanco = {
     prazo: string;
     coluna: string;
 };
-
-function validarTarefa(item: unknown): item is Tarefa {
-    if (typeof item !== 'object' || item === null) {
-        return false;
-    }
-    const tarefa = item as Record<string, unknown>;
-
-    return (
-        typeof tarefa.titulo === 'string' &&
-        typeof tarefa.autor === 'string' &&
-        typeof tarefa.prazo === 'string'
-    );
-}
-
-function validarTarefas(dados: unknown): dados is Tarefas {
-    if (typeof dados !== 'object' || dados === null) {
-        return false;
-    }
-
-    const tarefas = dados as Record<string, unknown>;
-
-    return (
-        Array.isArray(tarefas.todo) &&
-        Array.isArray(tarefas.doing) &&
-        Array.isArray(tarefas.done) &&
-        tarefas.todo.every(validarTarefa) &&
-        tarefas.doing.every(validarTarefa) &&
-        tarefas.done.every(validarTarefa)
-    );
-}
 
 const server = Bun.serve({
     port: 3000,
@@ -90,61 +48,106 @@ const server = Bun.serve({
             }
         }
 
-if (request.method === 'PUT' && url.pathname === '/api/tarefas') {
+if (request.method === 'POST' && url.pathname === '/api/tarefas') {
     try {
-        const conteudo = await request.text();
-        const dados = JSON.parse(conteudo);
+        const dados = await request.json();
 
-        console.log('Dados recebidos:', dados);
-
-        if (!validarTarefas(dados)) {
-            return new Response('Estrutura inválida', {
+        if (
+            typeof dados.titulo !== 'string' ||
+            typeof dados.autor !== 'string' ||
+            typeof dados.prazo !== 'string'
+        ) {
+            return new Response('Dados inválidos', {
                 status: 400
             });
         }
 
-        db.query('DELETE FROM tarefas').run();
-
-        const inserir = db.query(`
+        const resultado = db.query(`
             INSERT INTO tarefas (titulo, autor, prazo, coluna)
             VALUES (?, ?, ?, ?)
-        `);
-
-        for (const tarefa of dados.todo) {
-            inserir.run(
-                tarefa.titulo,
-                tarefa.autor,
-                tarefa.prazo,
-                'todo'
-            );
-        }
-
-        for (const tarefa of dados.doing) {
-            inserir.run(
-                tarefa.titulo,
-                tarefa.autor,
-                tarefa.prazo,
-                'doing'
-            );
-        }
-
-        for (const tarefa of dados.done) {
-            inserir.run(
-                tarefa.titulo,
-                tarefa.autor,
-                tarefa.prazo,
-                'done'
-            );
-        }
-
-        console.log(
-            db.query('SELECT * FROM tarefas').all()
+        `).run(
+            dados.titulo,
+            dados.autor,
+            dados.prazo,
+            'todo'
         );
 
-        return new Response('Tarefas salvas!');
+        return Response.json({
+            id: resultado.lastInsertRowid
+        });
     } catch {
-        return new Response('JSON inválido', {
-            status: 400
+        return new Response('Erro ao criar tarefa', {
+            status: 500
+        });
+    }
+}
+
+if (request.method === 'PATCH' && url.pathname.startsWith('/api/tarefas/')) {
+    try {
+        const id = Number(url.pathname.split('/').pop());
+
+        if (Number.isNaN(id)) {
+            return new Response('ID inválido', {
+                status: 400
+            });
+        }
+
+        const dados = await request.json();
+
+        if (
+            typeof dados.coluna !== 'string' ||
+            !['todo', 'doing', 'done'].includes(dados.coluna)
+        ) {
+            return new Response('Coluna inválida', {
+                status: 400
+            });
+        }
+
+        const resultado = db.query(`
+            UPDATE tarefas
+            SET coluna = ?
+            WHERE id = ?
+        `).run(dados.coluna, id);
+
+        if (resultado.changes === 0) {
+            return new Response('Tarefa não encontrada', {
+                status: 404
+            });
+        }
+
+        return new Response('Tarefa atualizada!');
+    } catch {
+        return new Response('Erro ao atualizar a tarefa', {
+            status: 500
+        });
+    }
+}
+
+if (request.method === 'DELETE' && url.pathname.startsWith('/api/tarefas/')) {
+    try {
+        const id = Number(url.pathname.split('/').pop());
+
+        if (Number.isNaN(id)) {
+            return new Response('ID inválido', {
+                status: 400
+            });
+        }
+
+        const resultado = db.query(`
+            DELETE FROM tarefas
+            WHERE id = ?
+        `).run(id);
+
+        if (resultado.changes === 0) {
+            return new Response('Tarefa não encontrada', {
+                status: 404
+            });
+        }
+
+        return new Response('Tarefa excluída!');
+    } catch {
+        return new Response('Erro ao excluir a tarefa', {
+            status: 500
         });
     }
 }
